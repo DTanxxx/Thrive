@@ -1436,7 +1436,6 @@ public class MicrobeEditorGUI : Node
             IconProgressBar progressBar = (IconProgressBar) parent.GetNode(process.Key);
             IconBarConfig config = new IconBarConfig(progressBar);
             if (config.Disabled) return;
-            GD.Print("@N "+process.Key+" "+" "+getPreviousBar(parent, progressBar).Name);
             config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
             config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
         }
@@ -1461,7 +1460,6 @@ public class MicrobeEditorGUI : Node
         IconProgressBar progressBar = (IconProgressBar) parent.GetNode(process.Key);
         IconBarConfig config = new IconBarConfig(progressBar);
         if (!config.Disabled) return;
-        GD.Print("@D "+process.Key+" "+" "+getPreviousBar(parent, progressBar).Name);
         config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
         config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
     }

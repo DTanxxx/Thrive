@@ -798,6 +798,7 @@ font_data = ExtResource( 5 )
 default_font = SubResource( 63 )
 
 [sub_resource type="Animation" id=65]
+resource_name = "atmosphericSlideDown"
 tracks/0/type = "value"
 tracks/0/path = NodePath("AtmosphericConditions/Clip:rect_min_size")
 tracks/0/interp = 1
@@ -824,6 +825,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id=66]
+resource_name = "atmosphericSlideUp"
 length = 0.3
 tracks/0/type = "value"
 tracks/0/path = NodePath("AtmosphericConditions/Clip:rect_min_size")
@@ -851,6 +853,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id=67]
+resource_name = "compoundsSlideDown"
 tracks/0/type = "value"
 tracks/0/path = NodePath("Compounds/Clip:rect_min_size")
 tracks/0/interp = 1
@@ -877,6 +880,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id=68]
+resource_name = "compoundsSlideUp"
 tracks/0/type = "value"
 tracks/0/path = NodePath("Compounds/Clip:rect_min_size")
 tracks/0/interp = 1
@@ -903,6 +907,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id=69]
+resource_name = "physicalSlideDown"
 length = 0.3
 tracks/0/type = "value"
 tracks/0/path = NodePath("PhysicalConditions/Clip:rect_min_size")
@@ -930,6 +935,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id=70]
+resource_name = "physicalSlideUp"
 length = 0.3
 tracks/0/type = "value"
 tracks/0/path = NodePath("PhysicalConditions/Clip:rect_min_size")
