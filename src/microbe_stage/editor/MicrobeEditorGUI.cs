@@ -453,14 +453,28 @@ public class MicrobeEditorGUI : Node
         removeUnusedBars(atpConsumptionBar, energyBalance.Consumption);
         removeUnusedBars(atpProductionBar, energyBalance.Production);
 
+        int location = 0;
         foreach (var process in makeSortedConsumptionBar(energyBalance.Consumption))
         {
-            createAndUpdateProcessBar(process, atpConsumptionBar);
+            createAndUpdateProcessBar(process, atpConsumptionBar, location);
+            location++;
+        }
+        foreach (var process in makeSortedConsumptionBar(energyBalance.Consumption))
+        {
+            if (atpConsumptionBar.HasNode(process.Key))
+                updateDisabledBars(process, atpConsumptionBar);
         }
 
+        location = 0;
         foreach (var process in energyBalance.Production)
         {
-            createAndUpdateProcessBar(process, atpProductionBar);
+            createAndUpdateProcessBar(process, atpProductionBar, location);
+            location++;
+        }
+        foreach (var process in energyBalance.Production)
+        {
+            if (atpConsumptionBar.HasNode(process.Key))
+                updateDisabledBars(process, atpProductionBar);
         }
     }
 
@@ -1415,59 +1429,99 @@ public class MicrobeEditorGUI : Node
             speciesNameEdit.Set("custom_colors/font_color", new Color(1, 1, 1));
         }
     }
-    private void createAndUpdateProcessBar (KeyValuePair <string, float> process, ProgressBar parent)
+    private void createAndUpdateProcessBar (KeyValuePair <string, float> process, ProgressBar parent, int location = -1)
     {
         if (parent.HasNode(process.Key))
         {
             IconProgressBar progressBar = (IconProgressBar) parent.GetNode(process.Key);
-            TextureRect textureRect = progressBar.GetChild<TextureRect>(0);
-            progressBar.MarginLeft = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-            progressBar.RectSize = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
-            textureRect.Visible = progressBar.RectSize.x >= 30;
+            IconBarConfig config = new IconBarConfig(progressBar);
+            if (config.Disabled) return;
+            GD.Print("@N "+process.Key+" "+" "+getPreviousBar(parent, progressBar).Name);
+            config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
+            config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
         }
         else
         {
             IconProgressBar progressBar = (IconProgressBar) IconProgressBarScene.Instance();
-            progressBar.Name = process.Key;
-            progressBar.Color = ATPBarHelper.GetBarColour(process.Key, parent.Name);
-            TextureRect textureRect = progressBar.GetChild<TextureRect>(0);
-            textureRect.Texture = ATPBarHelper.GetBarIcon(process.Key);
-            textureRect.Expand = true;
-            textureRect.RectSize = new Vector2(30, 30);
+            IconBarConfig config = new IconBarConfig(progressBar);
             parent.AddChild(progressBar);
-            progressBar.MarginLeft = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-            progressBar.RectSize = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
-            textureRect.Visible = progressBar.RectSize.x >= 30;
+            config.Name = process.Key;
+            config.Colour = ATPBarHelper.GetBarColour(process.Key, parent.Name);
+            config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
+            config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
+            config.Texture = ATPBarHelper.GetBarIcon(process.Key);
             progressBar.Connect("gui_input", this, nameof(atpBarToggled), new Godot.Collections.Array(){progressBar});
+            if (location >= 0)
+                config.Location = location;
         }
+    }
+
+    private void updateDisabledBars (KeyValuePair <string, float> process, ProgressBar parent)
+    {
+        IconProgressBar progressBar = (IconProgressBar) parent.GetNode(process.Key);
+        IconBarConfig config = new IconBarConfig(progressBar);
+        if (!config.Disabled) return;
+        GD.Print("@D "+process.Key+" "+" "+getPreviousBar(parent, progressBar).Name);
+        config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
+        config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
+    }
+
+    private void moveEnabledBars (IconProgressBar bar)
+    {
+        IconBarConfig config = new IconBarConfig(bar);
+        if (!config.Disabled)
+            bar.GetParent().MoveChild(bar, config.Location);
+    }
+
+    private void moveDisabledBars (IconProgressBar bar)
+    {
+        IconBarConfig config = new IconBarConfig(bar);
+        if (config.Disabled)
+            bar.GetParent().MoveChild(bar, bar.GetParent().GetChildCount() - 1);
     }
 
     private void atpBarToggled(InputEvent @event, IconProgressBar bar)
     {
         if (@event is InputEventMouseButton eventMouse && @event.IsPressed())
         {
-            bar.disabled = !bar.disabled;
-            handleATPBarDisabling(bar, eventMouse);
+            IconBarConfig config = new IconBarConfig(bar);
+            config.Disabled = !config.Disabled;
+            handleATPBarDisabling(bar);
         }
     }
 
-    private void handleATPBarDisabling(IconProgressBar bar, InputEventMouseButton eventMouse)
+    private void handleATPBarDisabling(IconProgressBar bar)
     {
+        IconBarConfig config = new IconBarConfig(bar);
         if (bar.disabled)
         {
-            bar.GetChild<TextureRect>(0).Modulate = new Color("#000000");
-            bar.Color = new Color("#bbbbbb");
-            bar.GetParent().MoveChild(bar, bar.GetParent().GetChildCount() - 1);
-            foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
-            {
-                float value  = iconBar.RectSize.x / 318 * (float)((ProgressBar)bar.GetParent()).MaxValue;
-                createAndUpdateProcessBar(new KeyValuePair<string, float>(iconBar.Name, value), (ProgressBar)bar.GetParent());
-            }
+            config.Modulate = new Color("#000000");
+            config.Colour = new Color("#bbbbbb");
+            moveATPBars(bar);
         }
         else
         {
-            bar.GetChild<TextureRect>(0).Modulate = new Color("#ffffff");
-            bar.Color = ATPBarHelper.GetBarColour(bar.Name, bar.GetParent().Name);
+            config.Modulate = new Color("#ffffff");
+            config.Colour = ATPBarHelper.GetBarColour(bar.Name, bar.GetParent().Name);
+            moveATPBars(bar);
+        }
+    }
+    
+    private void moveATPBars(IconProgressBar bar)
+    {
+        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
+            moveEnabledBars(iconBar);
+        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
+            moveDisabledBars(iconBar);
+        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
+        {
+            float value  = iconBar.RectSize.x / 318 * (float)((ProgressBar)bar.GetParent()).MaxValue;
+            createAndUpdateProcessBar(new KeyValuePair<string, float>(iconBar.Name, value), (ProgressBar)bar.GetParent());
+        }
+        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
+        {
+            float value  = iconBar.RectSize.x / 318 * (float)((ProgressBar)bar.GetParent()).MaxValue;
+            updateDisabledBars(new KeyValuePair<string, float>(iconBar.Name, value), (ProgressBar)bar.GetParent());
         }
     }
 
