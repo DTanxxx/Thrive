@@ -464,6 +464,11 @@ public class MicrobeEditorGUI : Node
             if (atpConsumptionBar.HasNode(process.Key))
                 updateDisabledBars(process, atpConsumptionBar);
         }
+        foreach (var process in makeSortedConsumptionBar(energyBalance.Consumption))
+        {
+            if (atpConsumptionBar.HasNode(process.Key))
+                moveATPBars(atpConsumptionBar.GetNode<IconProgressBar>(process.Key));
+        }
 
         location = 0;
         foreach (var process in energyBalance.Production)
@@ -473,8 +478,13 @@ public class MicrobeEditorGUI : Node
         }
         foreach (var process in energyBalance.Production)
         {
-            if (atpConsumptionBar.HasNode(process.Key))
+            if (atpProductionBar.HasNode(process.Key))
                 updateDisabledBars(process, atpProductionBar);
+        }
+        foreach (var process in energyBalance.Production)
+        {
+            if (atpProductionBar.HasNode(process.Key))
+                moveATPBars(atpProductionBar.GetNode<IconProgressBar>(process.Key));
         }
     }
 
@@ -1451,7 +1461,10 @@ public class MicrobeEditorGUI : Node
             config.Texture = ATPBarHelper.GetBarIcon(process.Key);
             progressBar.Connect("gui_input", this, nameof(atpBarToggled), new Godot.Collections.Array(){progressBar});
             if (location >= 0)
+            {
                 config.Location = location;
+                config.ActualLocation = location;
+            }
         }
     }
 
@@ -1464,18 +1477,28 @@ public class MicrobeEditorGUI : Node
         config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
     }
 
-    private void moveEnabledBars (IconProgressBar bar)
+    private void calculateActualLocation (ProgressBar parentBar)
     {
-        IconBarConfig config = new IconBarConfig(bar);
-        if (!config.Disabled)
-            bar.GetParent().MoveChild(bar, config.Location);
+        List<IconProgressBar> children = new List<IconProgressBar>();
+        foreach(IconProgressBar childBar in parentBar.GetChildren())
+        {
+            children.Add(childBar);
+        }
+        children = children.OrderBy(bar =>{
+            IconBarConfig config = new IconBarConfig(bar);
+            return config.Location + (config.Disabled ? children.Count : 0);
+        }).ToList();
+        foreach (var childBar in children)
+        {
+            IconBarConfig config = new IconBarConfig(childBar);
+            config.ActualLocation = children.IndexOf(childBar);
+        }
     }
 
-    private void moveDisabledBars (IconProgressBar bar)
+    private void moveByIndexBars (IconProgressBar bar)
     {
         IconBarConfig config = new IconBarConfig(bar);
-        if (config.Disabled)
-            bar.GetParent().MoveChild(bar, bar.GetParent().GetChildCount() - 1);
+        bar.GetParent().MoveChild(bar, config.ActualLocation);
     }
 
     private void atpBarToggled(InputEvent @event, IconProgressBar bar)
@@ -1507,10 +1530,9 @@ public class MicrobeEditorGUI : Node
     
     private void moveATPBars(IconProgressBar bar)
     {
+        calculateActualLocation(bar.GetParent<ProgressBar>());
         foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
-            moveEnabledBars(iconBar);
-        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
-            moveDisabledBars(iconBar);
+            moveByIndexBars(iconBar);
         foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
         {
             float value  = iconBar.RectSize.x / 318 * (float)((ProgressBar)bar.GetParent()).MaxValue;

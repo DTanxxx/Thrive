@@ -4,6 +4,7 @@ public class IconProgressBar : ColorRect
 {
     public bool disabled = false;
     public int location;
+    public int actualLocation;
 }
 
 public class IconBarConfig
@@ -39,6 +40,10 @@ public class IconBarConfig
     public int Location {
         get { return target.location; }
         set { target.location = value; }
+    }
+    public int ActualLocation {
+        get { return target.actualLocation; }
+        set { target.actualLocation = value; }
     }
     public Texture Texture {
         set { icon.Texture = value; }
