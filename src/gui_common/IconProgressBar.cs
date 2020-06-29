@@ -2,9 +2,10 @@ using Godot;
 
 public class IconProgressBar : ColorRect
 {
-    public bool disabled = false;
-    public int location;
-    public int actualLocation;
+    public bool Disabled = false;
+    public int Location;
+    public int ActualLocation;
+
 }
 
 public class IconBarConfig
@@ -14,41 +15,65 @@ public class IconBarConfig
     public IconBarConfig(IconProgressBar target)
     {
         this.target = target;
-        this.icon = target.GetChild<TextureRect>(0);
+        icon = target.GetChild<TextureRect>(0);
     }
 
-    public string Name {
+    public string Name
+    {
+        get { return target.Name; }
         set { target.Name = value; }
     }
-    public Color Colour {
+
+    public Color Colour
+    {
+        get { return target.Color; }
         set { target.Color = value; }
     }
-    public Vector2 Size {
-        set {
+
+    public Vector2 Size
+    {
+        get { return target.RectSize; }
+        set
+        {
             target.RectSize = value;
             icon.RectSize = new Vector2(value.y, value.y);
             icon.Visible = target.RectSize.x >= icon.RectSize.x;
         }
     }
-    public float LeftShift {
+
+    public float LeftShift
+    {
+        get { return target.MarginLeft; }
         set { target.MarginLeft = value; }
     }
-    public bool Disabled {
-        get { return target.disabled; }
-        set { target.disabled = value; }
+
+    public bool Disabled
+    {
+        get { return target.Disabled; }
+        set { target.Disabled = value; }
     }
-    public int Location {
-        get { return target.location; }
-        set { target.location = value; }
+
+    public int Location
+    {
+        get { return target.Location; }
+        set { target.Location = value; }
     }
-    public int ActualLocation {
-        get { return target.actualLocation; }
-        set { target.actualLocation = value; }
+
+    public int ActualLocation
+    {
+        get { return target.ActualLocation; }
+        set { target.ActualLocation = value; }
     }
-    public Texture Texture {
+
+    public Texture Texture
+    {
+        get { return icon.Texture; }
         set { icon.Texture = value; }
     }
-    public Color Modulate {
+
+    public Color Modulate
+    {
+        get { return icon.Modulate; }
         set { icon.Modulate = value; }
     }
 }

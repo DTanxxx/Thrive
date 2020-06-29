@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Linq;
+using System.Text;
 using Godot;
 
 /// <summary>
@@ -54,10 +54,7 @@ public class MicrobeEditorGUI : Node
     public NodePath ATPBalanceLabelPath;
 
     [Export]
-    public NodePath ATPProductionBarPath;
-
-    [Export]
-    public NodePath ATPConsumptionBarPath;
+    public NodePath ATPBarContainerPath;
 
     [Export]
     public NodePath GlucoseReductionLabelPath;
@@ -231,8 +228,11 @@ public class MicrobeEditorGUI : Node
     private TextureButton symmetryButton;
     private TextureRect symmetryIcon;
     private Label atpBalanceLabel;
-    private ProgressBar atpProductionBar;
-    private ProgressBar atpConsumptionBar;
+    private VBoxContainer atpBarContainer;
+    private SegmentedBar atpProductionBar;
+    private SegmentedBar atpConsumptionBar;
+    private SegmentedBarConfig productionConfig;
+    private SegmentedBarConfig consumptionConfig;
     private Label glucoseReductionLabel;
     private Label autoEvoLabel;
     private Label externalEffectsLabel;
@@ -272,7 +272,7 @@ public class MicrobeEditorGUI : Node
     private Slider rigiditySlider;
     private HelpScreen helpScreen;
 
-    private PackedScene IconProgressBarScene = GD.Load<PackedScene>("res://src/gui_common/IconProgressBar.tscn");
+    private PackedScene SegmentedBarScene = GD.Load<PackedScene>("res://src/gui_common/SegmentedBar.tscn");
     private bool inEditorTab = false;
     private MicrobeEditor.MicrobeSymmetry symmetry = MicrobeEditor.MicrobeSymmetry.None;
 
@@ -313,8 +313,7 @@ public class MicrobeEditorGUI : Node
         symmetryButton = GetNode<TextureButton>(SymmetryButtonPath);
         finishButton = GetNode<Button>(FinishButtonPath);
         atpBalanceLabel = GetNode<Label>(ATPBalanceLabelPath);
-        atpProductionBar = GetNode<ProgressBar>(ATPProductionBarPath);
-        atpConsumptionBar = GetNode<ProgressBar>(ATPConsumptionBarPath);
+        atpBarContainer = GetNode<VBoxContainer>(ATPBarContainerPath);
         glucoseReductionLabel = GetNode<Label>(GlucoseReductionLabelPath);
         autoEvoLabel = GetNode<Label>(AutoEvoLabelPath);
         externalEffectsLabel = GetNode<Label>(ExternalEffectsLabelPath);
@@ -356,6 +355,17 @@ public class MicrobeEditorGUI : Node
         helpScreen = GetNode<HelpScreen>(HelpScreenPath);
 
         mapDrawer.OnSelectedPatchChanged = (drawer) => { UpdateShownPatchDetails(); };
+
+        atpProductionBar = (SegmentedBar)SegmentedBarScene.Instance();
+        atpConsumptionBar = (SegmentedBar)SegmentedBarScene.Instance();
+        productionConfig = new SegmentedBarConfig(atpConsumptionBar);
+        consumptionConfig = new SegmentedBarConfig(atpProductionBar);
+        productionConfig.Type = "ATP";
+        consumptionConfig.Type = "ATP";
+        productionConfig.Size = new float[] { 318, 30 };
+        consumptionConfig.Size = new float[] { 318, 30 };
+        atpBarContainer.AddChild(atpConsumptionBar);
+        atpBarContainer.AddChild(atpProductionBar);
 
         // Fade out for that smooth satisfying transition
         TransitionManager.Instance.AddScreenFade(Fade.FadeType.FadeOut, 0.5f);
@@ -450,42 +460,8 @@ public class MicrobeEditorGUI : Node
         atpConsumptionBar.MaxValue = maxValue;
         atpConsumptionBar.Value = energyBalance.TotalConsumption;
 
-        removeUnusedBars(atpConsumptionBar, energyBalance.Consumption);
-        removeUnusedBars(atpProductionBar, energyBalance.Production);
-
-        int location = 0;
-        foreach (var process in makeSortedConsumptionBar(energyBalance.Consumption))
-        {
-            createAndUpdateProcessBar(process, atpConsumptionBar, location);
-            location++;
-        }
-        foreach (var process in makeSortedConsumptionBar(energyBalance.Consumption))
-        {
-            if (atpConsumptionBar.HasNode(process.Key))
-                updateDisabledBars(process, atpConsumptionBar);
-        }
-        foreach (var process in makeSortedConsumptionBar(energyBalance.Consumption))
-        {
-            if (atpConsumptionBar.HasNode(process.Key))
-                moveATPBars(atpConsumptionBar.GetNode<IconProgressBar>(process.Key));
-        }
-
-        location = 0;
-        foreach (var process in energyBalance.Production)
-        {
-            createAndUpdateProcessBar(process, atpProductionBar, location);
-            location++;
-        }
-        foreach (var process in energyBalance.Production)
-        {
-            if (atpProductionBar.HasNode(process.Key))
-                updateDisabledBars(process, atpProductionBar);
-        }
-        foreach (var process in energyBalance.Production)
-        {
-            if (atpProductionBar.HasNode(process.Key))
-                moveATPBars(atpProductionBar.GetNode<IconProgressBar>(process.Key));
-        }
+        productionConfig.updateAndMoveBars(energyBalance.Production);
+        consumptionConfig.updateAndMoveBars(makeSortedConsumptionBar(energyBalance.Consumption));
     }
 
     /// <summary>
@@ -1439,143 +1415,16 @@ public class MicrobeEditorGUI : Node
             speciesNameEdit.Set("custom_colors/font_color", new Color(1, 1, 1));
         }
     }
-    private void createAndUpdateProcessBar (KeyValuePair <string, float> process, ProgressBar parent, int location = -1)
-    {
-        if (parent.HasNode(process.Key))
-        {
-            IconProgressBar progressBar = (IconProgressBar) parent.GetNode(process.Key);
-            IconBarConfig config = new IconBarConfig(progressBar);
-            if (config.Disabled) return;
-            config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-            config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
-        }
-        else
-        {
-            IconProgressBar progressBar = (IconProgressBar) IconProgressBarScene.Instance();
-            IconBarConfig config = new IconBarConfig(progressBar);
-            parent.AddChild(progressBar);
-            config.Name = process.Key;
-            config.Colour = ATPBarHelper.GetBarColour(process.Key, parent.Name);
-            config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-            config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
-            config.Texture = ATPBarHelper.GetBarIcon(process.Key);
-            progressBar.Connect("gui_input", this, nameof(atpBarToggled), new Godot.Collections.Array(){progressBar});
-            if (location >= 0)
-            {
-                config.Location = location;
-                config.ActualLocation = location;
-            }
-        }
-    }
 
-    private void updateDisabledBars (KeyValuePair <string, float> process, ProgressBar parent)
+    private Dictionary<string, float> makeSortedConsumptionBar (Dictionary<string, float> consumptionBar)
     {
-        IconProgressBar progressBar = (IconProgressBar) parent.GetNode(process.Key);
-        IconBarConfig config = new IconBarConfig(progressBar);
-        if (!config.Disabled) return;
-        config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-        config.Size = new Vector2((float)Math.Floor(process.Value / parent.MaxValue * 318), 30);
-    }
+        Dictionary<string, float> result = consumptionBar;
 
-    private void calculateActualLocation (ProgressBar parentBar)
-    {
-        List<IconProgressBar> children = new List<IconProgressBar>();
-        foreach(IconProgressBar childBar in parentBar.GetChildren())
-        {
-            children.Add(childBar);
-        }
-        children = children.OrderBy(bar =>{
-            IconBarConfig config = new IconBarConfig(bar);
-            return config.Location + (config.Disabled ? children.Count : 0);
-        }).ToList();
-        foreach (var childBar in children)
-        {
-            IconBarConfig config = new IconBarConfig(childBar);
-            config.ActualLocation = children.IndexOf(childBar);
-        }
-    }
-
-    private void moveByIndexBars (IconProgressBar bar)
-    {
-        IconBarConfig config = new IconBarConfig(bar);
-        bar.GetParent().MoveChild(bar, config.ActualLocation);
-    }
-
-    private void atpBarToggled(InputEvent @event, IconProgressBar bar)
-    {
-        if (@event is InputEventMouseButton eventMouse && @event.IsPressed())
-        {
-            IconBarConfig config = new IconBarConfig(bar);
-            config.Disabled = !config.Disabled;
-            handleATPBarDisabling(bar);
-        }
-    }
-
-    private void handleATPBarDisabling(IconProgressBar bar)
-    {
-        IconBarConfig config = new IconBarConfig(bar);
-        if (bar.disabled)
-        {
-            config.Modulate = new Color("#000000");
-            config.Colour = new Color("#bbbbbb");
-            moveATPBars(bar);
-        }
-        else
-        {
-            config.Modulate = new Color("#ffffff");
-            config.Colour = ATPBarHelper.GetBarColour(bar.Name, bar.GetParent().Name);
-            moveATPBars(bar);
-        }
-    }
-    
-    private void moveATPBars(IconProgressBar bar)
-    {
-        calculateActualLocation(bar.GetParent<ProgressBar>());
-        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
-            moveByIndexBars(iconBar);
-        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
-        {
-            float value  = iconBar.RectSize.x / 318 * (float)((ProgressBar)bar.GetParent()).MaxValue;
-            createAndUpdateProcessBar(new KeyValuePair<string, float>(iconBar.Name, value), (ProgressBar)bar.GetParent());
-        }
-        foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
-        {
-            float value  = iconBar.RectSize.x / 318 * (float)((ProgressBar)bar.GetParent()).MaxValue;
-            updateDisabledBars(new KeyValuePair<string, float>(iconBar.Name, value), (ProgressBar)bar.GetParent());
-        }
-    }
-
-    private IconProgressBar getPreviousBar(ProgressBar parent, IconProgressBar currentBar)
-    {
-        return currentBar.GetIndex() != 0 ?
-            parent.GetChild<IconProgressBar>(currentBar.GetIndex() - 1) : new IconProgressBar();
-    }
-
-    private void removeUnusedBars (ProgressBar parent, Dictionary<string, float> processes)
-    {
-        foreach (IconProgressBar progressBar in parent.GetChildren())
-        {
-            bool match = false;
-            foreach (var process in processes)
-            {
-                if (progressBar.Name == process.Key)
-                    match = true;
-            }
-            if (!match)
-                progressBar.Free();
-        }
-    }
-
-    private List<KeyValuePair<string, float>> makeSortedConsumptionBar (Dictionary<string, float> consumptionBar)
-    {
-        List<KeyValuePair<string, float>> result = new List<KeyValuePair<string, float>>();
-        foreach (var pair in consumptionBar)
-        {
-            result.Add(pair);
-        }
         result = result.OrderBy(
             i => i.Key != "baseMovement" && i.Key != "osmoregulation")
-            .ToList();
+            .ToList()
+            .ToDictionary(x => x.Key, x => x.Value);
+
         return result;
     }
 }
