@@ -1,4 +1,4 @@
-[gd_scene load_steps=154 format=2]
+[gd_scene load_steps=155 format=2]
 
 [ext_resource path="res://src/microbe_stage/MicrobeCamera.tscn" type="PackedScene" id=1]
 [ext_resource path="res://src/microbe_stage/editor/MicrobeEditor.cs" type="Script" id=2]
@@ -78,6 +78,7 @@
 [ext_resource path="res://assets/textures/gui/bevel/4xSymmetry.png" type="Texture" id=76]
 [ext_resource path="res://assets/textures/gui/bevel/2xSymmetry.png" type="Texture" id=77]
 [ext_resource path="res://assets/textures/gui/bevel/increase.png" type="Texture" id=78]
+[ext_resource path="res://src/gui_common/SegmentedBar.tscn" type="PackedScene" id=79]
 [ext_resource path="res://assets/textures/gui/scrollbar_theme.tres" type="Theme" id=80]
 [ext_resource path="res://src/general/HelpScreen.tscn" type="PackedScene" id=81]
 [ext_resource path="res://assets/textures/gui/bevel/MediumTwoNormal.png" type="Texture" id=82]
@@ -1018,6 +1019,8 @@ FinishButtonPath = NodePath("CellEditor/FinishButton")
 SymmetryButtonPath = NodePath("CellEditor/SymmetryButton")
 ATPBalanceLabelPath = NodePath("CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/Label")
 ATPBarContainerPath = NodePath("CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer")
+ATPProductionBarPath = NodePath("CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer/ATPProductionBar")
+ATPConsumptionBarPath = NodePath("CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer/ATPConsumptionBar")
 GlucoseReductionLabelPath = NodePath("Report/EvoResultsPanel/MarginContainer/ScrollContainer/VBoxContainer/GlucoseReduction")
 AutoEvoLabelPath = NodePath("Report/EvoResultsPanel/MarginContainer/ScrollContainer/VBoxContainer/AutoEvoResults")
 ExternalEffectsLabelPath = NodePath("Report/EvoResultsPanel/MarginContainer/ScrollContainer/VBoxContainer/ExternalEffectsList")
@@ -1329,6 +1332,10 @@ custom_styles/separator = SubResource( 11 )
 
 [node name="ATPBarContainer" type="VBoxContainer" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer"]
 alignment = 1
+
+[node name="ATPConsumptionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
+
+[node name="ATPProductionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
 
 [node name="LeftPanel" type="Control" parent="MicrobeEditorGUI/CellEditor"]
 anchor_bottom = 1.0

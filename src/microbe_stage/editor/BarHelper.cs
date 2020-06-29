@@ -5,7 +5,7 @@ using Godot;
 /// </summary>
 public static class BarHelper
 {
-    public static Color GetBarColour(string type, string name, ProgressBar segmentedBar)
+    public static Color GetBarColour(string type, string name, bool production)
     {
         switch (type)
         {
@@ -13,35 +13,30 @@ public static class BarHelper
             {
                 foreach (var organelle in SimulationParameters.Instance.GetAllOrganelles())
                 {
-                    if (organelle.Name == name)
+                    switch (name)
                     {
-                        if (segmentedBar.GetIndex() == 0)
+                        case "baseMovement":
+                            return new Color(1, 0.33f, 0.14f);
+                        case "osmoregulation":
+                            return new Color(1, 0.84f, 0.24f);
+                    }
+
+                    if (organelle.InternalName == name)
+                    {
+                        if (production)
                         {
                             return new Color(organelle.ProductionColour);
                         }
-                        else if (segmentedBar.GetIndex() == 1)
+                        else
                         {
                             return new Color(organelle.ConsumptionColour);
                         }
-                        else
-                        {
-                            return new Color("#444444");
-                        }
                     }
                 }
-
-                switch (name)
-                {
-                    case "baseMovement":
-                        return new Color("#ff5524");
-                    case "osmoregulation":
-                        return new Color("#ffd63e");
-                    default:
-                        return new Color("#444444");
-                }
+                return new Color(0.68f, 0.68f, 0.68f);
             }
             default:
-                return new Color("#444444");
+                return new Color(0.68f, 0.68f, 0.68f);
         }
     }
 
@@ -51,24 +46,24 @@ public static class BarHelper
         {
             case "ATP":
             {
-                foreach (var organelle in SimulationParameters.Instance.GetAllOrganelles())
-                {
-                    if (organelle.Name == name)
-                        return GD.Load<Texture>(organelle.IconPath);
-                }
-
                 switch (name)
                 {
                     case "baseMovement":
                         return GD.Load<Texture>("res://assets/textures/gui/bevel/baseMovementIcon.png");
                     case "osmoregulation":
                         return GD.Load<Texture>("res://assets/textures/gui/bevel/osmoIcon.png");
-                    default:
-                        return GD.Load<Texture>("res://assets/textures/gui/logo.png");
                 }
+
+                foreach (var organelle in SimulationParameters.Instance.GetAllOrganelles())
+                {
+                    if (organelle.InternalName == name)
+                        return GD.Load<Texture>(organelle.IconPath);
+                }
+
+                return null;
             }
             default:
-                return GD.Load<Texture>("res://assets/textures/gui/logo.png");
+                return null;
         }
     }
 }

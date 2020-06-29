@@ -56,6 +56,13 @@ public class MicrobeEditorGUI : Node
     [Export]
     public NodePath ATPBarContainerPath;
 
+
+    [Export]
+    public NodePath ATPProductionBarPath;
+
+    [Export]
+    public NodePath ATPConsumptionBarPath;
+
     [Export]
     public NodePath GlucoseReductionLabelPath;
 
@@ -272,7 +279,6 @@ public class MicrobeEditorGUI : Node
     private Slider rigiditySlider;
     private HelpScreen helpScreen;
 
-    private PackedScene SegmentedBarScene = GD.Load<PackedScene>("res://src/gui_common/SegmentedBar.tscn");
     private bool inEditorTab = false;
     private MicrobeEditor.MicrobeSymmetry symmetry = MicrobeEditor.MicrobeSymmetry.None;
 
@@ -314,6 +320,8 @@ public class MicrobeEditorGUI : Node
         finishButton = GetNode<Button>(FinishButtonPath);
         atpBalanceLabel = GetNode<Label>(ATPBalanceLabelPath);
         atpBarContainer = GetNode<VBoxContainer>(ATPBarContainerPath);
+        atpProductionBar = GetNode<SegmentedBar>(ATPProductionBarPath);
+        atpConsumptionBar = GetNode<SegmentedBar>(ATPConsumptionBarPath);
         glucoseReductionLabel = GetNode<Label>(GlucoseReductionLabelPath);
         autoEvoLabel = GetNode<Label>(AutoEvoLabelPath);
         externalEffectsLabel = GetNode<Label>(ExternalEffectsLabelPath);
@@ -356,16 +364,12 @@ public class MicrobeEditorGUI : Node
 
         mapDrawer.OnSelectedPatchChanged = (drawer) => { UpdateShownPatchDetails(); };
 
-        atpProductionBar = (SegmentedBar)SegmentedBarScene.Instance();
-        atpConsumptionBar = (SegmentedBar)SegmentedBarScene.Instance();
         productionConfig = new SegmentedBarConfig(atpConsumptionBar);
         consumptionConfig = new SegmentedBarConfig(atpProductionBar);
         productionConfig.Type = "ATP";
         consumptionConfig.Type = "ATP";
         productionConfig.Size = new float[] { 318, 30 };
         consumptionConfig.Size = new float[] { 318, 30 };
-        atpBarContainer.AddChild(atpConsumptionBar);
-        atpBarContainer.AddChild(atpProductionBar);
 
         // Fade out for that smooth satisfying transition
         TransitionManager.Instance.AddScreenFade(Fade.FadeType.FadeOut, 0.5f);
@@ -453,12 +457,8 @@ public class MicrobeEditorGUI : Node
         }
 
         float maxValue = Math.Max(energyBalance.TotalConsumption, energyBalance.TotalProduction);
-
-        atpProductionBar.MaxValue = maxValue;
-        atpProductionBar.Value = energyBalance.TotalProduction;
-
-        atpConsumptionBar.MaxValue = maxValue;
-        atpConsumptionBar.Value = energyBalance.TotalConsumption;
+        productionConfig.MaxValue = maxValue;
+        consumptionConfig.MaxValue = maxValue;
 
         productionConfig.updateAndMoveBars(energyBalance.Production);
         consumptionConfig.updateAndMoveBars(makeSortedConsumptionBar(energyBalance.Consumption));
