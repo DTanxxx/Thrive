@@ -12,72 +12,38 @@ public class SegmentedBar : Control
     public string Type;
     public float maxValue;
 
-    public void BarToggled(InputEvent @event, IconProgressBar bar)
-    {
-        if (@event is InputEventMouseButton eventMouse && @event.IsPressed())
-        {
-            IconBarConfig config = new IconBarConfig(bar);
-            config.Disabled = !config.Disabled;
-            new SegmentedBarConfig(this).handleBarDisabling(bar);
-        }
-    }
-}
-
-/// <summary>
-///   Configuration class for SegmentedBar class
-/// </summary>
-public class SegmentedBarConfig
-{
-    private SegmentedBar target;
-
-    public SegmentedBarConfig(SegmentedBar target)
-    {
-        this.target = target;
-    }
-
     public float[] Size
     {
-        get { return new float[]{ target.RectSize.x, target.RectSize.y }; }
+        get { return new float[]{ RectSize.x, RectSize.y }; }
         set
         {
-            target.RectSize = new Vector2(value[0], value[1]);
-            target.RectMinSize = target.RectSize;
+            RectSize = new Vector2(value[0], value[1]);
+            RectMinSize = RectSize;
         }
-    }
-
-    public string Type
-    {
-        get { return target.Type; }
-        set { target.Type = value; }
-    }
-
-    public float MaxValue
-    {
-        get { return target.maxValue; }
-        set { target.maxValue = value; }
     }
 
     public void updateAndMoveBars(Dictionary<string, float> data)
     {
-        removeUnusedBars(target, data);
+        removeUnusedBars(this, data);
 
+        data = SortBarData(data);
         int location = 0;
         foreach (var dataPair in data)
         {
-            createAndUpdateBar(dataPair, target, location);
+            createAndUpdateBar(dataPair, this, location);
             location++;
         }
 
         foreach (var dataPair in data)
         {
-            if (target.HasNode(dataPair.Key))
-                updateDisabledBars(dataPair, target);
+            if (HasNode(dataPair.Key))
+                updateDisabledBars(dataPair, this);
         }
 
         foreach (var dataPair in data)
         {
-            if (target.HasNode(dataPair.Key))
-                moveBars(target.GetNode<IconProgressBar>(dataPair.Key));
+            if (HasNode(dataPair.Key))
+                moveBars(GetNode<IconProgressBar>(dataPair.Key));
         }
     }
 
@@ -116,11 +82,11 @@ public class SegmentedBarConfig
             IconBarConfig config = new IconBarConfig(progressBar);
             parent.AddChild(progressBar);
             config.Name = dataPair.Key;
-            config.Colour = BarHelper.GetBarColour(Type, dataPair.Key, target.GetIndex() == 0);
+            config.Colour = BarHelper.GetBarColour(Type, dataPair.Key, GetIndex() == 0);
             config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
             config.Size = new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]);
             config.Texture = BarHelper.GetBarIcon(Type, dataPair.Key);
-            progressBar.Connect("gui_input", target, nameof(target.BarToggled), new Godot.Collections.Array() { progressBar } );
+            progressBar.Connect("gui_input", this, nameof(BarToggled), new Godot.Collections.Array() { progressBar } );
             if (location >= 0)
             {
                 config.Location = location;
@@ -128,6 +94,17 @@ public class SegmentedBarConfig
             }
         }
     }
+
+    public void BarToggled(InputEvent @event, IconProgressBar bar)
+    {
+        if (@event is InputEventMouseButton eventMouse && @event.IsPressed())
+        {
+            IconBarConfig config = new IconBarConfig(bar);
+            config.Disabled = !config.Disabled;
+            handleBarDisabling(bar);
+        }
+    }
+
 
     private IconProgressBar getPreviousBar(SegmentedBar parent, IconProgressBar currentBar)
     {
@@ -182,7 +159,7 @@ public class SegmentedBarConfig
         else
         {
             config.Modulate = new Color(1, 1, 1);
-            config.Colour = BarHelper.GetBarColour(Type, bar.Name, target.GetIndex() == 0);
+            config.Colour = BarHelper.GetBarColour(Type, bar.Name, GetIndex() == 0);
             moveBars(bar);
         }
     }
@@ -204,5 +181,16 @@ public class SegmentedBarConfig
             float value = iconBar.RectSize.x / Size[0] * (float)((SegmentedBar)bar.GetParent()).maxValue;
             updateDisabledBars(new KeyValuePair<string, float>(iconBar.Name, value), (SegmentedBar)bar.GetParent());
         }
+    }
+    private Dictionary<string, float> SortBarData (Dictionary<string, float> bar)
+    {
+        Dictionary<string, float> result = bar;
+
+        result = result.OrderBy(
+            i => i.Key)
+            .ToList()
+            .ToDictionary(x => x.Key, x => x.Value);
+
+        return result;
     }
 }

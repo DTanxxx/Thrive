@@ -238,8 +238,6 @@ public class MicrobeEditorGUI : Node
     private VBoxContainer atpBarContainer;
     private SegmentedBar atpProductionBar;
     private SegmentedBar atpConsumptionBar;
-    private SegmentedBarConfig productionConfig;
-    private SegmentedBarConfig consumptionConfig;
     private Label glucoseReductionLabel;
     private Label autoEvoLabel;
     private Label externalEffectsLabel;
@@ -364,12 +362,10 @@ public class MicrobeEditorGUI : Node
 
         mapDrawer.OnSelectedPatchChanged = (drawer) => { UpdateShownPatchDetails(); };
 
-        productionConfig = new SegmentedBarConfig(atpConsumptionBar);
-        consumptionConfig = new SegmentedBarConfig(atpProductionBar);
-        productionConfig.Type = "ATP";
-        consumptionConfig.Type = "ATP";
-        productionConfig.Size = new float[] { 318, 30 };
-        consumptionConfig.Size = new float[] { 318, 30 };
+        atpProductionBar.Type = "ATP";
+        atpConsumptionBar.Type = "ATP";
+        atpProductionBar.Size = new float[] { 318, 30 };
+        atpConsumptionBar.Size = new float[] { 318, 30 };
 
         // Fade out for that smooth satisfying transition
         TransitionManager.Instance.AddScreenFade(Fade.FadeType.FadeOut, 0.5f);
@@ -457,11 +453,11 @@ public class MicrobeEditorGUI : Node
         }
 
         float maxValue = Math.Max(energyBalance.TotalConsumption, energyBalance.TotalProduction);
-        productionConfig.MaxValue = maxValue;
-        consumptionConfig.MaxValue = maxValue;
+        atpProductionBar.maxValue = maxValue;
+        atpConsumptionBar.maxValue = maxValue;
 
-        productionConfig.updateAndMoveBars(energyBalance.Production);
-        consumptionConfig.updateAndMoveBars(makeSortedConsumptionBar(energyBalance.Consumption));
+        atpProductionBar.updateAndMoveBars(energyBalance.Production);
+        atpConsumptionBar.updateAndMoveBars(energyBalance.Consumption);
     }
 
     /// <summary>
@@ -1414,17 +1410,5 @@ public class MicrobeEditorGUI : Node
         {
             speciesNameEdit.Set("custom_colors/font_color", new Color(1, 1, 1));
         }
-    }
-
-    private Dictionary<string, float> makeSortedConsumptionBar (Dictionary<string, float> consumptionBar)
-    {
-        Dictionary<string, float> result = consumptionBar;
-
-        result = result.OrderBy(
-            i => i.Key != "baseMovement" && i.Key != "osmoregulation")
-            .ToList()
-            .ToDictionary(x => x.Key, x => x.Value);
-
-        return result;
     }
 }

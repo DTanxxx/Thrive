@@ -1333,9 +1333,9 @@ custom_styles/separator = SubResource( 11 )
 [node name="ATPBarContainer" type="VBoxContainer" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer"]
 alignment = 1
 
-[node name="ATPConsumptionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
-
 [node name="ATPProductionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
+
+[node name="ATPConsumptionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
 
 [node name="LeftPanel" type="Control" parent="MicrobeEditorGUI/CellEditor"]
 anchor_bottom = 1.0
