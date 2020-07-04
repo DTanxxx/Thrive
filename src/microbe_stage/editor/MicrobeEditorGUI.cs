@@ -456,8 +456,8 @@ public class MicrobeEditorGUI : Node
         atpProductionBar.maxValue = maxValue;
         atpConsumptionBar.maxValue = maxValue;
 
-        atpProductionBar.updateAndMoveBars(energyBalance.Production);
-        atpConsumptionBar.updateAndMoveBars(energyBalance.Consumption);
+        atpProductionBar.updateAndMoveBars(SortBarData(energyBalance.Production));
+        atpConsumptionBar.updateAndMoveBars(SortBarData(energyBalance.Consumption));
     }
 
     /// <summary>
@@ -1410,5 +1410,17 @@ public class MicrobeEditorGUI : Node
         {
             speciesNameEdit.Set("custom_colors/font_color", new Color(1, 1, 1));
         }
+    }
+
+    private Dictionary<string, float> SortBarData (Dictionary<string, float> bar)
+    {
+        Dictionary<string, float> result = bar;
+
+        result = result.OrderBy(
+            i => (i.Key != "osmoregulation" && i.Key != "baseMovement") ? i.Key : "")
+            .ToList()
+            .ToDictionary(x => x.Key, x => x.Value);
+
+        return result;
     }
 }

@@ -26,7 +26,6 @@ public class SegmentedBar : Control
     {
         removeUnusedBars(this, data);
 
-        data = SortBarData(data);
         int location = 0;
         foreach (var dataPair in data)
         {
@@ -72,6 +71,11 @@ public class SegmentedBar : Control
         {
             IconProgressBar progressBar = (IconProgressBar)parent.GetNode(dataPair.Key);
             IconBarConfig config = new IconBarConfig(progressBar);
+            if (location >= 0)
+            {
+                config.Location = location;
+                config.ActualLocation = location;
+            }
             if (config.Disabled) return;
             config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
             config.Size = new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]);
@@ -181,16 +185,5 @@ public class SegmentedBar : Control
             float value = iconBar.RectSize.x / Size[0] * (float)((SegmentedBar)bar.GetParent()).maxValue;
             updateDisabledBars(new KeyValuePair<string, float>(iconBar.Name, value), (SegmentedBar)bar.GetParent());
         }
-    }
-    private Dictionary<string, float> SortBarData (Dictionary<string, float> bar)
-    {
-        Dictionary<string, float> result = bar;
-
-        result = result.OrderBy(
-            i => i.Key)
-            .ToList()
-            .ToDictionary(x => x.Key, x => x.Value);
-
-        return result;
     }
 }
