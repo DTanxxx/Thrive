@@ -70,32 +70,30 @@ public class SegmentedBar : Control
         if (parent.HasNode(dataPair.Key))
         {
             IconProgressBar progressBar = (IconProgressBar)parent.GetNode(dataPair.Key);
-            IconBarConfig config = new IconBarConfig(progressBar);
             if (location >= 0)
             {
-                config.Location = location;
-                config.ActualLocation = location;
+                progressBar.SetBarLocation(location);
+                progressBar.SetBarActualLocation(location);
             }
-            if (config.Disabled) return;
-            config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-            config.Size = new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]);
+            if (progressBar.Disabled) return;
+            progressBar.SetBarLeftShift(getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft);
+            progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]));
         }
         else
         {
-            IconProgressBar progressBar = (IconProgressBar)new SegmentedBar().IconProgressBarScene.Instance();
-            IconBarConfig config = new IconBarConfig(progressBar);
-            parent.AddChild(progressBar);
-            config.Name = dataPair.Key;
-            config.Colour = BarHelper.GetBarColour(Type, dataPair.Key, GetIndex() == 0);
-            config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-            config.Size = new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]);
-            config.Texture = BarHelper.GetBarIcon(Type, dataPair.Key);
-            progressBar.Connect("gui_input", this, nameof(BarToggled), new Godot.Collections.Array() { progressBar } );
+            IconProgressBar progressBar = (IconProgressBar)IconProgressBarScene.Instance();
+            progressBar.SetBarName(dataPair.Key);
+            progressBar.SetBarColour(BarHelper.GetBarColour(Type, dataPair.Key, GetIndex() == 0));
+            progressBar.SetBarLeftShift(getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft);
+            progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]));
+            progressBar.SetBarIconTexture(BarHelper.GetBarIcon(Type, dataPair.Key));
             if (location >= 0)
             {
-                config.Location = location;
-                config.ActualLocation = location;
+                progressBar.SetBarLocation(location);
+                progressBar.SetBarActualLocation(location);
             }
+            parent.AddChild(progressBar);
+            progressBar.Connect("gui_input", this, nameof(BarToggled), new Godot.Collections.Array() { progressBar } );
         }
     }
 
@@ -103,8 +101,7 @@ public class SegmentedBar : Control
     {
         if (@event is InputEventMouseButton eventMouse && @event.IsPressed())
         {
-            IconBarConfig config = new IconBarConfig(bar);
-            config.Disabled = !config.Disabled;
+            bar.SetBarDisabledStatus(!bar.Disabled);
             handleBarDisabling(bar);
         }
     }
@@ -112,17 +109,16 @@ public class SegmentedBar : Control
 
     private IconProgressBar getPreviousBar(SegmentedBar parent, IconProgressBar currentBar)
     {
-        return currentBar.GetIndex() != 0 ?
+        return currentBar.GetIndex() > 0 ?
             parent.GetChild<IconProgressBar>(currentBar.GetIndex() - 1) : new IconProgressBar();
     }
 
     private void updateDisabledBars(KeyValuePair <string, float> dataPair, SegmentedBar parent)
     {
         IconProgressBar progressBar = (IconProgressBar)parent.GetNode(dataPair.Key);
-        IconBarConfig config = new IconBarConfig(progressBar);
-        if (!config.Disabled) return;
-        config.LeftShift = getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft;
-        config.Size = new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]);
+        if (!progressBar.Disabled) return;
+        progressBar.SetBarLeftShift(getPreviousBar(parent, progressBar).RectSize.x + getPreviousBar(parent, progressBar).MarginLeft);
+        progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / parent.maxValue * Size[0]), Size[1]));
     }
 
     private void calculateActualLocation(SegmentedBar parentBar)
@@ -134,36 +130,32 @@ public class SegmentedBar : Control
         }
 
         children = children.OrderBy(bar => {
-            IconBarConfig config = new IconBarConfig(bar);
-            return config.Location + (config.Disabled ? children.Count : 0);
+            return bar.Location + (bar.Disabled ? children.Count : 0);
         }).ToList();
 
         foreach (var childBar in children)
         {
-            IconBarConfig config = new IconBarConfig(childBar);
-            config.ActualLocation = children.IndexOf(childBar);
+            childBar.SetBarActualLocation(children.IndexOf(childBar));
         }
     }
 
     private void moveByIndexBars(IconProgressBar bar)
     {
-        IconBarConfig config = new IconBarConfig(bar);
-        bar.GetParent().MoveChild(bar, config.ActualLocation);
+        bar.GetParent().MoveChild(bar, bar.ActualLocation);
     }
 
     public void handleBarDisabling(IconProgressBar bar)
     {
-        IconBarConfig config = new IconBarConfig(bar);
         if (bar.Disabled)
         {
-            config.Modulate = new Color(0, 0, 0);
-            config.Colour = new Color(0.73f, 0.73f, 0.73f);
+            bar.SetBarIconModulation(new Color(0, 0, 0));
+            bar.SetBarColour(new Color(0.73f, 0.73f, 0.73f));
             moveBars(bar);
         }
         else
         {
-            config.Modulate = new Color(1, 1, 1);
-            config.Colour = BarHelper.GetBarColour(Type, bar.Name, GetIndex() == 0);
+            bar.SetBarIconModulation(new Color(1, 1, 1));
+            bar.SetBarColour(BarHelper.GetBarColour(Type, bar.Name, GetIndex() == 0));
             moveBars(bar);
         }
     }

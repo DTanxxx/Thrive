@@ -2,78 +2,54 @@ using Godot;
 
 public class IconProgressBar : ColorRect
 {
-    public bool Disabled = false;
-    public int Location;
-    public int ActualLocation;
+    public bool Disabled { get; private set; }
+    public int Location { get; private set; }
+    public int ActualLocation { get; private set; }
 
-}
-
-public class IconBarConfig
-{
-    private IconProgressBar target;
-    private TextureRect icon;
-    public IconBarConfig(IconProgressBar target)
+    public void SetBarName(string name)
     {
-        this.target = target;
-        icon = target.GetChild<TextureRect>(0);
+        this.Name = name;
     }
 
-    public string Name
+    public void SetBarColour(Color colour)
     {
-        get { return target.Name; }
-        set { target.Name = value; }
+        this.Color = colour;
     }
 
-    public Color Colour
+    public void SetBarLeftShift(float leftShift)
     {
-        get { return target.Color; }
-        set { target.Color = value; }
+        this.MarginLeft = leftShift;
     }
 
-    public Vector2 Size
+    public void SetBarSize(Vector2 size)
     {
-        get { return target.RectSize; }
-        set
-        {
-            target.RectSize = value;
-            icon.RectSize = new Vector2(value.y, value.y);
-            icon.Visible = target.RectSize.x >= icon.RectSize.x;
-        }
+        this.RectSize = size;
+        this.GetChild<TextureRect>(0).RectSize = new Vector2(size.y, size.y);
+        this.GetChild<TextureRect>(0).Visible = this.RectSize.x >=  this.GetChild<TextureRect>(0).RectSize.x;
     }
 
-    public float LeftShift
+    public void SetBarIconTexture(Texture texture)
     {
-        get { return target.MarginLeft; }
-        set { target.MarginLeft = value; }
+        this.GetChild<TextureRect>(0).Texture = texture;
     }
 
-    public bool Disabled
+    public void SetBarIconModulation(Color colour)
     {
-        get { return target.Disabled; }
-        set { target.Disabled = value; }
+        this.GetChild<TextureRect>(0).Modulate = colour;
     }
 
-    public int Location
+    public void SetBarLocation(int location)
     {
-        get { return target.Location; }
-        set { target.Location = value; }
+        this.Location = location;
     }
 
-    public int ActualLocation
+    public void SetBarActualLocation(int actualLocation)
     {
-        get { return target.ActualLocation; }
-        set { target.ActualLocation = value; }
+        this.ActualLocation = actualLocation;
     }
 
-    public Texture Texture
+    public void SetBarDisabledStatus(bool disabled)
     {
-        get { return icon.Texture; }
-        set { icon.Texture = value; }
-    }
-
-    public Color Modulate
-    {
-        get { return icon.Modulate; }
-        set { icon.Modulate = value; }
+        this.Disabled = disabled;
     }
 }
