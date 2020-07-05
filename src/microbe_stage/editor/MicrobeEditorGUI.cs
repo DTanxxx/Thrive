@@ -56,7 +56,6 @@ public class MicrobeEditorGUI : Node
     [Export]
     public NodePath ATPBarContainerPath;
 
-
     [Export]
     public NodePath ATPProductionBarPath;
 
@@ -356,8 +355,8 @@ public class MicrobeEditorGUI : Node
 
         atpProductionBar.Type = "ATP";
         atpConsumptionBar.Type = "ATP";
-        atpProductionBar.Size = new float[] { 318, 30 };
-        atpConsumptionBar.Size = new float[] { 318, 30 };
+        atpProductionBar.Size = new Vector2(318, 30);
+        atpConsumptionBar.Size = new Vector2(318, 30);
 
         // Fade out for that smooth satisfying transition
         TransitionManager.Instance.AddScreenFade(Fade.FadeType.FadeOut, 0.5f);
@@ -434,11 +433,11 @@ public class MicrobeEditorGUI : Node
         }
 
         float maxValue = Math.Max(energyBalance.TotalConsumption, energyBalance.TotalProduction);
-        atpProductionBar.maxValue = maxValue;
-        atpConsumptionBar.maxValue = maxValue;
+        atpProductionBar.MaxValue = maxValue;
+        atpConsumptionBar.MaxValue = maxValue;
 
-        atpProductionBar.updateAndMoveBars(SortBarData(energyBalance.Production));
-        atpConsumptionBar.updateAndMoveBars(SortBarData(energyBalance.Consumption));
+        atpProductionBar.UpdateAndMoveBars(SortBarData(energyBalance.Production));
+        atpConsumptionBar.UpdateAndMoveBars(SortBarData(energyBalance.Consumption));
     }
 
     /// <summary>
@@ -1358,12 +1357,12 @@ public class MicrobeEditorGUI : Node
         }
     }
 
-    private Dictionary<string, float> SortBarData (Dictionary<string, float> bar)
+    private Dictionary<string, float> SortBarData(Dictionary<string, float> bar)
     {
         Dictionary<string, float> result = bar;
 
         result = result.OrderBy(
-            i => (i.Key != "osmoregulation" && i.Key != "baseMovement") ? i.Key : "")
+            i => (i.Key != "osmoregulation" && i.Key != "baseMovement") ? i.Key : string.Empty)
             .ToList()
             .ToDictionary(x => x.Key, x => x.Value);
 

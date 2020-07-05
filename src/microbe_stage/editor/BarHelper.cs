@@ -33,8 +33,10 @@ public static class BarHelper
                         }
                     }
                 }
+
                 return new Color(0.68f, 0.68f, 0.68f);
             }
+
             default:
                 return new Color(0.68f, 0.68f, 0.68f);
         }
@@ -62,6 +64,7 @@ public static class BarHelper
 
                 return null;
             }
+
             default:
                 return null;
         }
