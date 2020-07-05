@@ -8,8 +8,6 @@ using Godot;
 /// </summary>
 public class SegmentedBar : Control
 {
-    public enum Type { ATP };
-
     public Type SelectedType;
 
     public float MaxValue;
@@ -17,6 +15,8 @@ public class SegmentedBar : Control
     private PackedScene iconProgressBarScene = GD.Load<PackedScene>("res://src/gui_common/IconProgressBar.tscn");
 
     private List<IconProgressBar> subBars = new List<IconProgressBar>();
+
+    public enum Type { ATP }
 
     public void UpdateAndMoveBars(List<KeyValuePair<string, float>> data)
     {

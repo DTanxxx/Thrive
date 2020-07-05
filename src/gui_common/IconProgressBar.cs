@@ -15,8 +15,10 @@ public class IconProgressBar : ColorRect
     {
         RectSize = size;
         RectMinSize = size;
+
         // Sets icon size
         GetChild<TextureRect>(0).RectSize = new Vector2(size.y, size.y);
+
         // Changes icon visibility if bar is not wide enough
         GetChild<TextureRect>(0).Visible = RectSize.x >= GetChild<TextureRect>(0).RectSize.x;
     }
