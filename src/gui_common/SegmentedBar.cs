@@ -82,7 +82,9 @@ public class SegmentedBar : Control
 
             if (progressBar.Disabled)
                 return;
-            progressBar.SetBarLeftShift(GetPreviousBar(parent, progressBar).RectSize.x + GetPreviousBar(parent, progressBar).MarginLeft);
+            progressBar.SetBarLeftShift(
+                GetPreviousBar(parent, progressBar).RectSize.x +
+                GetPreviousBar(parent, progressBar).MarginLeft);
             progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / parent.MaxValue * Size[0]), Size[1]));
         }
         else
@@ -90,7 +92,9 @@ public class SegmentedBar : Control
             IconProgressBar progressBar = (IconProgressBar)IconProgressBarScene.Instance();
             progressBar.SetBarName(dataPair.Key);
             progressBar.SetBarColour(BarHelper.GetBarColour(Type, dataPair.Key, GetIndex() == 0));
-            progressBar.SetBarLeftShift(GetPreviousBar(parent, progressBar).RectSize.x + GetPreviousBar(parent, progressBar).MarginLeft);
+            progressBar.SetBarLeftShift(
+                GetPreviousBar(parent, progressBar).RectSize.x +
+                GetPreviousBar(parent, progressBar).MarginLeft);
             progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / parent.MaxValue * Size[0]), Size[1]));
             progressBar.SetBarIconTexture(BarHelper.GetBarIcon(Type, dataPair.Key));
             if (location >= 0)
@@ -124,7 +128,9 @@ public class SegmentedBar : Control
         IconProgressBar progressBar = (IconProgressBar)parent.GetNode(dataPair.Key);
         if (!progressBar.Disabled)
             return;
-        progressBar.SetBarLeftShift(GetPreviousBar(parent, progressBar).RectSize.x + GetPreviousBar(parent, progressBar).MarginLeft);
+        progressBar.SetBarLeftShift(
+            GetPreviousBar(parent, progressBar).RectSize.x +
+            GetPreviousBar(parent, progressBar).MarginLeft);
         progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / parent.MaxValue * Size[0]), Size[1]));
     }
 
