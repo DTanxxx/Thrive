@@ -77,9 +77,6 @@ public class SegmentedBar : Control
 
             if (progressBar.Disabled)
                 return;
-            progressBar.MarginLeft =
-                GetPreviousBar(progressBar).RectSize.x +
-                GetPreviousBar(progressBar).MarginLeft;
             progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / MaxValue * RectSize.x), RectSize.y));
         }
         else
@@ -87,9 +84,6 @@ public class SegmentedBar : Control
             IconProgressBar progressBar = (IconProgressBar)iconProgressBarScene.Instance();
             progressBar.SetBarName(dataPair.Key);
             progressBar.Color = BarHelper.GetBarColour(SelectedType, dataPair.Key, GetIndex() == 0);
-            progressBar.MarginLeft =
-                GetPreviousBar(progressBar).RectSize.x +
-                GetPreviousBar(progressBar).MarginLeft;
             progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / MaxValue * RectSize.x), RectSize.y));
             progressBar.SetBarIconTexture(BarHelper.GetBarIcon(SelectedType, dataPair.Key));
             if (location >= 0)
@@ -124,9 +118,6 @@ public class SegmentedBar : Control
         IconProgressBar progressBar = (IconProgressBar)GetNode(dataPair.Key);
         if (!progressBar.Disabled)
             return;
-        progressBar.MarginLeft =
-            GetPreviousBar(progressBar).RectSize.x +
-            GetPreviousBar(progressBar).MarginLeft;
         progressBar.SetBarSize(new Vector2((float)Math.Floor(dataPair.Value / MaxValue * RectSize.x), RectSize.y));
     }
 
