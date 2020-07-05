@@ -1,4 +1,4 @@
-[gd_scene load_steps=158 format=2]
+[gd_scene load_steps=153 format=2]
 
 [ext_resource path="res://src/microbe_stage/MicrobeCamera.tscn" type="PackedScene" id=1]
 [ext_resource path="res://src/microbe_stage/editor/MicrobeEditor.cs" type="Script" id=2]
@@ -79,7 +79,6 @@
 [ext_resource path="res://assets/textures/gui/bevel/increase.png" type="Texture" id=78]
 [ext_resource path="res://src/gui_common/SegmentedBar.tscn" type="PackedScene" id=79]
 [ext_resource path="res://src/engine/ChromaticFilter.tscn" type="PackedScene" id=80]
-[ext_resource path="res://src/general/HelpScreen.tscn" type="PackedScene" id=81]
 [ext_resource path="res://assets/textures/gui/bevel/MediumTwoNormal.png" type="Texture" id=82]
 [ext_resource path="res://assets/textures/gui/bevel/MediumTwoDisabled.png" type="Texture" id=83]
 [ext_resource path="res://assets/textures/gui/bevel/MediumTwoHover.png" type="Texture" id=84]
@@ -1334,8 +1333,14 @@ custom_styles/separator = SubResource( 11 )
 alignment = 1
 
 [node name="ATPProductionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
+margin_right = 318.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 318, 30 )
 
 [node name="ATPConsumptionBar" parent="MicrobeEditorGUI/CellEditor/ATPBalancePanel/MarginContainer/VBoxContainer/ATPBarContainer" instance=ExtResource( 79 )]
+margin_right = 318.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 318, 30 )
 
 [node name="LeftPanel" type="Control" parent="MicrobeEditorGUI/CellEditor"]
 anchor_bottom = 1.0
@@ -1450,7 +1455,6 @@ anchor_bottom = 1.0
 margin_bottom = -20.0
 mouse_filter = 1
 size_flags_horizontal = 0
-theme = ExtResource( 80 )
 scroll_horizontal_enabled = false
 __meta__ = {
 "_edit_use_anchors_": true
@@ -3206,14 +3210,13 @@ margin_bottom = -20.0
 rect_min_size = Vector2( 320, 0 )
 mouse_filter = 1
 size_flags_horizontal = 0
-theme = ExtResource( 80 )
 scroll_horizontal_enabled = false
 __meta__ = {
 "_edit_use_anchors_": true
 }
 
 [node name="MarginContainer" type="MarginContainer" parent="MicrobeEditorGUI/CellEditor/LeftPanel/Panel/Membrane/ScrollContainer"]
-margin_right = 313.0
+margin_right = 304.0
 margin_bottom = 821.0
 mouse_filter = 1
 custom_constants/margin_top = 10
@@ -3226,7 +3229,7 @@ __meta__ = {
 [node name="VBoxContainer" type="VBoxContainer" parent="MicrobeEditorGUI/CellEditor/LeftPanel/Panel/Membrane/ScrollContainer/MarginContainer"]
 margin_left = 10.0
 margin_top = 10.0
-margin_right = 313.0
+margin_right = 304.0
 margin_bottom = 811.0
 custom_constants/separation = 10
 
@@ -9508,7 +9511,6 @@ margin_left = 3.0
 margin_top = 3.0
 margin_right = 1271.0
 margin_bottom = 664.0
-theme = ExtResource( 80 )
 follow_focus = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MicrobeEditorGUI/Report/EvoResultsPanel/MarginContainer/ScrollContainer"]
@@ -9622,7 +9624,6 @@ margin_bottom = 663.0
 margin_right = 700.0
 margin_bottom = 660.0
 rect_min_size = Vector2( 700, 0 )
-theme = ExtResource( 80 )
 follow_focus = true
 
 [node name="PatchMapDrawer" parent="MicrobeEditorGUI/PatchMap/MapPanel/MarginContainer/HSplitContainer/ScrollContainer" instance=ExtResource( 54 )]
@@ -9660,7 +9661,6 @@ margin_bottom = 590.0
 rect_min_size = Vector2( 0, 580 )
 size_flags_horizontal = 3
 size_flags_vertical = 2
-theme = ExtResource( 80 )
 follow_focus = true
 scroll_horizontal_enabled = false
 

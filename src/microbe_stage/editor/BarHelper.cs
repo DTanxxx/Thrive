@@ -5,22 +5,22 @@ using Godot;
 /// </summary>
 public static class BarHelper
 {
-    public static Color GetBarColour(string type, string name, bool production)
+    public static Color GetBarColour(SegmentedBar.Type type, string name, bool production)
     {
         switch (type)
         {
-            case "ATP":
+            case SegmentedBar.Type.ATP:
             {
+                switch (name)
+                {
+                    case "baseMovement":
+                        return new Color(1, 0.33f, 0.14f);
+                    case "osmoregulation":
+                        return new Color(1, 0.84f, 0.24f);
+                }
+
                 foreach (var organelle in SimulationParameters.Instance.GetAllOrganelles())
                 {
-                    switch (name)
-                    {
-                        case "baseMovement":
-                            return new Color(1, 0.33f, 0.14f);
-                        case "osmoregulation":
-                            return new Color(1, 0.84f, 0.24f);
-                    }
-
                     if (organelle.InternalName == name)
                     {
                         if (production)
@@ -42,11 +42,11 @@ public static class BarHelper
         }
     }
 
-    public static Texture GetBarIcon(string type, string name)
+    public static Texture GetBarIcon(SegmentedBar.Type type, string name)
     {
         switch (type)
         {
-            case "ATP":
+            case SegmentedBar.Type.ATP:
             {
                 switch (name)
                 {

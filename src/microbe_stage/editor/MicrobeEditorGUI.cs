@@ -353,10 +353,8 @@ public class MicrobeEditorGUI : Node
 
         mapDrawer.OnSelectedPatchChanged = (drawer) => { UpdateShownPatchDetails(); };
 
-        atpProductionBar.Type = "ATP";
-        atpConsumptionBar.Type = "ATP";
-        atpProductionBar.Size = new Vector2(318, 30);
-        atpConsumptionBar.Size = new Vector2(318, 30);
+        atpProductionBar.SelectedType = SegmentedBar.Type.ATP;
+        atpConsumptionBar.SelectedType = SegmentedBar.Type.ATP;
 
         // Fade out for that smooth satisfying transition
         TransitionManager.Instance.AddScreenFade(Fade.FadeType.FadeOut, 0.5f);
@@ -1357,14 +1355,13 @@ public class MicrobeEditorGUI : Node
         }
     }
 
-    private Dictionary<string, float> SortBarData(Dictionary<string, float> bar)
+    private List<KeyValuePair<string, float>> SortBarData(Dictionary<string, float> bar)
     {
-        Dictionary<string, float> result = bar;
+        List<KeyValuePair<string, float>> result;
 
-        result = result.OrderBy(
+        result = bar.OrderBy(
             i => (i.Key != "osmoregulation" && i.Key != "baseMovement") ? i.Key : string.Empty)
-            .ToList()
-            .ToDictionary(x => x.Key, x => x.Value);
+            .ToList();
 
         return result;
     }
