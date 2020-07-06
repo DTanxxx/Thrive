@@ -6,9 +6,11 @@ using Godot;
 /// <summary>
 ///   A ProgressBar that is split up into IconProgressBars, data is stored in a dictionary
 /// </summary>
-public class SegmentedBar : Control
+public class SegmentedBar : HBoxContainer
 {
     public Type SelectedType;
+
+    public List<KeyValuePair<string, float>> GlobalData;
 
     public float MaxValue;
 
@@ -20,6 +22,8 @@ public class SegmentedBar : Control
 
     public void UpdateAndMoveBars(List<KeyValuePair<string, float>> data)
     {
+        GlobalData = data;
+
         RemoveUnusedBars(data);
 
         int location = 0;
@@ -169,14 +173,26 @@ public class SegmentedBar : Control
 
         foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
         {
-            float value = iconBar.RectSize.x / RectSize.x * MaxValue;
-            CreateAndUpdateBar(new KeyValuePair<string, float>(iconBar.Name, value));
+            foreach (KeyValuePair<string, float> dataPair in GlobalData)
+            {
+                if (iconBar.Name == dataPair.Key)
+                {
+                    CreateAndUpdateBar(dataPair);
+                    break;
+                }
+            }
         }
 
         foreach (IconProgressBar iconBar in bar.GetParent().GetChildren())
         {
-            float value = iconBar.RectSize.x / RectSize.x * MaxValue;
-            UpdateDisabledBars(new KeyValuePair<string, float>(iconBar.Name, value));
+            foreach (KeyValuePair<string, float> dataPair in GlobalData)
+            {
+                if (iconBar.Name == dataPair.Key)
+                {
+                    UpdateDisabledBars(dataPair);
+                    break;
+                }
+            }
         }
     }
 }

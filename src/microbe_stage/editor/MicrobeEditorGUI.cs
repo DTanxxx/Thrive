@@ -1358,11 +1358,34 @@ public class MicrobeEditorGUI : Node
     private List<KeyValuePair<string, float>> SortBarData(Dictionary<string, float> bar)
     {
         List<KeyValuePair<string, float>> result;
+        ATPComparer atpComparer = new ATPComparer();
 
         result = bar.OrderBy(
-            i => (i.Key != "osmoregulation" && i.Key != "baseMovement") ? i.Key : string.Empty)
+            i => i.Key, atpComparer)
             .ToList();
 
         return result;
+    }
+
+    private class ATPComparer : IComparer<string>
+    {
+        public int Compare(string stringA, string stringB)
+        {
+            bool stringAPriority = stringA == "osmoregulation" || stringA == "baseMovement";
+            bool stringBPriority = stringB == "osmoregulation" || stringB == "baseMovement";
+
+            if (stringAPriority && !stringBPriority)
+            {
+            return -1;
+            }
+            else if (!stringAPriority && stringBPriority)
+            {
+            return 1;
+            }
+            else
+            {
+            return string.Compare(stringA, stringB, (System.StringComparison)0);
+            }
+        }
     }
 }
