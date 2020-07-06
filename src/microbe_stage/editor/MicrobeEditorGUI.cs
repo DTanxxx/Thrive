@@ -1371,14 +1371,19 @@ public class MicrobeEditorGUI : Node
     {
         public int Compare(string stringA, string stringB)
         {
-            bool stringAPriority = stringA == "osmoregulation" || stringA == "baseMovement";
-            bool stringBPriority = stringB == "osmoregulation" || stringB == "baseMovement";
-
-            if (stringAPriority && !stringBPriority)
+            if (stringA == "osmoregulation")
             {
             return -1;
             }
-            else if (!stringAPriority && stringBPriority)
+            else if (stringB == "osmoregulation")
+            {
+            return 1;
+            }
+            else if (stringA == "baseMovement")
+            {
+            return -1;
+            }
+            else if (stringB == "baseMovement")
             {
             return 1;
             }
